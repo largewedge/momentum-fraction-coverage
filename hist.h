@@ -253,18 +253,68 @@ class pt_histos{
 
 		}
 
+
+		void bin_filler(std::vector<float> pT_gamma1,std::vector<float> pT_gamma2,float pT_bin_right, float pT_bin_left, TH1F *histo, float data){
+	
+			if(pT_gamma1.size() == 0 and pT_gamma2.size() == 0){
+				cout << "AAaaaahh";
+
+			}
+
+			for(int i = 0; i < pT_gamma1.size();i++){
+				if(pT_gamma1[i] < pT_bin_right and pT_gamma1[i] > pT_bin_left){
+					histo->Fill(data);
+
+				}
+			}
+			for(int i = 0; i < pT_gamma2.size();i++){
+				if(pT_gamma2[i] < pT_bin_right and pT_gamma2[i] > pT_bin_left){
+					histo->Fill(data);
+				}
+			}
+
+
+		}
+
+
+
 		void filler(int id1,int id2, float data1,float data2, std::vector<float> pT_gamma1, std::vector<float> pT_gamma2, int &counter){
 
 
-
+			int num_gammas1 = pT_gamma1.size();
+			int num_gammas2 = pT_gamma2.size();
 			for(int i = 0; i< partons.length(); i++){
 				//if there are no final state photons, don't plot anything
-				if(pT_gamma1.size() == 0 and pT_gamma2.size() == 0) break;
+				if(num_gammas1 == 0 and num_gammas2 == 0) break;
 
 				for(int j = 0; j < max_pT_bins - 1; j++){
+					if(partons[i] == 'u'){
+						if(id1 == 2){
+							bin_filler(pT_gamma1,pT_gamma2,pT_bins[j+1],pT_bins[j],histos[j][i],data1);
+						}
+						if(id2 == 2) {
+							bin_filler(pT_gamma1,pT_gamma2,pT_bins[j+1],pT_bins[j],histos[j][i],data2);
+						}
+					}
+
+					if(partons[i] == 'd'){
+						if(id1 == 1){
+							bin_filler(pT_gamma1,pT_gamma2,pT_bins[j+1],pT_bins[j],histos[j][i],data1);
+						}
+						if(id2 == 1){
+							bin_filler(pT_gamma1,pT_gamma2,pT_bins[j+1],pT_bins[j],histos[j][i],data2);
+						}
+					}
+					if(partons[i] == 't'){
+						bin_filler(pT_gamma1,pT_gamma2,pT_bins[j+1],pT_bins[j],histos[j][i],data1);
+						bin_filler(pT_gamma1,pT_gamma2,pT_bins[j+1],pT_bins[j],histos[j][i],data2);
+
+					}
+
+					/*
 					if(partons[i] == 'u' and (id1 == 2 || id2 == 2)) {
 
-
+						
 						for(int k = 0; k < pT_gamma1.size(); k++) {
 							if(pT_gamma1[k] < pT_bins[j+1] and pT_gamma1[k] > pT_bins[j]) {
 								histos[j][i]->Fill(data1);
@@ -309,7 +359,13 @@ class pt_histos{
 						}
 
 						
-					}
+					} if(partons[i] == 't') {
+						for(int)
+						if(pT_gamma1[k]){
+							
+
+						}
+					} */
 				}
 				
 			}
@@ -319,7 +375,7 @@ class pt_histos{
 		void display(int split_pT_bins,float_t x_min) {
 			TCanvas* pT_bin_canvas = new TCanvas("pT_bin_canvas","pT_bin_canvas");
 			//pT_bin_canvas->SetLogx();
-		//	pT_bin_canvas->SetLogy();
+			//pT_bin_canvas->SetLogy();
 			
 			if(both) {
 				pT_bin_canvas->Divide(2,1);
@@ -348,6 +404,8 @@ class pt_histos{
 					if(partons[j] == 'u') {
 						histos[i][j]->SetLineColor(j+1);
 					}if(partons[j] == 'd'){
+						histos[i][j]->SetLineColor(j+1);
+					}if(partons[j]){
 						histos[i][j]->SetLineColor(j+1);
 					}
 	
@@ -397,6 +455,8 @@ class pt_histos{
 				}if(partons[i] == 'd'){
 					strcpy(legend_buf,(char*)"q_{d} Momentum Fraction");
 
+				}if(partons[i] == 't'){
+					strcpy(legend_buf,(char*)"Total Momentum Fraction");
 				}
 				legend->AddEntry(histos[0][i], legend_buf,"f");
 				legend->Draw("SAME");

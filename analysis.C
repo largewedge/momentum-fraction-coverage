@@ -42,7 +42,7 @@ void analysis() {
 	float pT_bins[5] = {5,6,8,10,16};
 	TCanvas* pT_bin_canvas = new TCanvas("canvas","pT bin canvas" );
 
-	pt_histos pT_cut_hist = pt_histos("binned by pT","ud",pT_bin_canvas,pT_bins,0);
+	pt_histos pT_cut_hist = pt_histos("binned by pT","udt",pT_bin_canvas,pT_bins,0);
 
 	int counter;
 
