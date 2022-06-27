@@ -1,6 +1,7 @@
 #include "logbin.h"
 
 class frac_hists{
+
 	public:
 		TH1F* total;
 		TH1F* up;
@@ -130,7 +131,18 @@ class frac_hists{
 };
 
 
+/*
 
+Parton chars:
+up quark = u
+down quark = d
+antiup quark = a
+antidown quark = p
+total (count all partons) = t
+gluon = g
+
+
+*/
 
 class pt_histos{
 	//std::vector<TH1F*> up_histos;
@@ -151,7 +163,9 @@ class pt_histos{
 	float pT_bins[max_pT_bins] = {};
 
 	//gStyle->GetXaxis()->SetLimits(1e-3,1);
-
+	
+	char possible_partons[max_partons] = {'u','d','a','p','t','g'};
+	
 
 
 	public:
@@ -171,16 +185,31 @@ class pt_histos{
 
 			for(int i = 0; i<max_pT_bins - 1; i++) {
 				for(int j = 0; j < partons.length(); j++){
-					if(partons[j] == 'u'){
-						create_new_histogram(pT_bins[i+1],pT_bins[i],histos[i][j],name,j);
+					char parton = partons[j];
+					float pT_bin_right = pT_bins[i+1];
+					float pT_bin_left = pT_bins[i];
+					
+					create_new_histogram(pT_bin_right,pT_bin_left,histos[i][j],name,j);
+					
+					/*
+					if(parton == 'u'){
+						create_new_histogram(pT_bin_right,pT_bin_left,histos[i][j],name,j);
 					}
-					if(partons[j] == 'd'){
-						create_new_histogram(pT_bins[i+1],pT_bins[i],histos[i][j],name,j);
-		
+					if(parton == 'd'){
+						create_new_histogram(pT_bin_right,pT_bin_left,histos[i][j],name,j);
 					}
-					if(partons[j] == 't'){
-						create_new_histogram(pT_bins[i+1],pT_bins[i],histos[i][j],name,j);
+					if(parton == 't'){
+						create_new_histogram(pT_bin_right,pT_bin_left,histos[i][j],name,j);
 					}
+					if(parton == 'a'){
+						create_new_histogram(pT_bin_right,pT_bin_left,histos[i][j],name,j)
+					}
+					if(parton == 'p') {
+						create_new_histogram(pT_bin_right,pT_bins_left,histos[i][j],name,j)
+					}
+					if(parton == 'g'){
+						create_new_histogram
+					}*/
 				}
 			}
 			
@@ -207,6 +236,12 @@ class pt_histos{
 				strcpy(buf,(char*)"q_{u} Momentum Fraction ");
 			} if(parton == 'd'){
 				strcpy(buf,(char*)"q_{d} Momentum Fraction ");
+			} if(parton == 'a'){
+				strcpy(buf,(char*)"#overline{q_{u}} Momentum Fraction ");
+			} if(parton == 'p'){
+				strcpy(buf,(char*)"#overline{q_{d}} Momentum Fraction ");
+			} if(parton == 'g') {
+				strcpy(buf,(char*)"g Momentum Fraction");
 			}
 			
 			strcat(buf,name);
@@ -255,84 +290,60 @@ class pt_histos{
 				if(num_gammas1 == 0 and num_gammas2 == 0) break;
 
 				for(int j = 0; j < max_pT_bins - 1; j++){
-					if(partons[i] == 'u'){
+					char parton = partons[i];
+					float pT_bin_right = pT_bins[j+1];
+					float pT_bin_left = pT_bins[j];
+					if(parton == 'u'){
 						if(id1 == 2){
-							bin_filler(pT_gamma1,pT_gamma2,pT_bins[j+1],pT_bins[j],histos[j][i],data1);
+							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data1);
 						}
 						if(id2 == 2) {
-							bin_filler(pT_gamma1,pT_gamma2,pT_bins[j+1],pT_bins[j],histos[j][i],data2);
+							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data2);
 						}
 					}
 
-					if(partons[i] == 'd'){
+					if(parton == 'd'){
 						if(id1 == 1){
-							bin_filler(pT_gamma1,pT_gamma2,pT_bins[j+1],pT_bins[j],histos[j][i],data1);
+							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data1);
 						}
 						if(id2 == 1){
-							bin_filler(pT_gamma1,pT_gamma2,pT_bins[j+1],pT_bins[j],histos[j][i],data2);
+							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data2);
 						}
 					}
-					if(partons[i] == 't'){
-						bin_filler(pT_gamma1,pT_gamma2,pT_bins[j+1],pT_bins[j],histos[j][i],data1);
-						bin_filler(pT_gamma1,pT_gamma2,pT_bins[j+1],pT_bins[j],histos[j][i],data2);
+					if(parton == 't'){
+						bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data1);
+						bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data2);
 
 					}
 
-					/*
-					if(partons[i] == 'u' and (id1 == 2 || id2 == 2)) {
-
-						
-						for(int k = 0; k < pT_gamma1.size(); k++) {
-							if(pT_gamma1[k] < pT_bins[j+1] and pT_gamma1[k] > pT_bins[j]) {
-								histos[j][i]->Fill(data1);
-								histos[j][i]->Fill(data2);
-								if(data1 < 1e-3 || data2 < 1e-3){
-									counter++;
-								}
-								break;
-							}
-						} for(int k = 0; k < pT_gamma2.size(); k++) {
-							if(pT_gamma2[k] < pT_bins[j+1] and pT_gamma2[k] > pT_bins[j]) {
-								histos[j][i]->Fill(data1);
-								histos[j][i]->Fill(data2);
-
-
-								if(data1 < 1e-3 || data2 < 1e-3) {
-
-									counter++;
-								}
-
-								break;
-							}
+					if(parton == 'p'){
+						if(id1 == -1){
+							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data1);
 						}
-
-					} if(partons[i] == 'd' and (id1 == 1 || id2 == 1)) {
-						for(int k = 0; k < pT_gamma1.size(); k++){
-
-							if(pT_gamma1[k] < pT_bins[j+1] and pT_gamma1[k] > pT_bins[j]) {
-								histos[j][i]->Fill(data1);
-								histos[j][i]->Fill(data2);
-								break;
-							}
-						}
-						for(int k = 0; k < pT_gamma2.size(); k++) {
-
-
-							if(pT_gamma2[k] < pT_bins[j+1] and pT_gamma2[k] > pT_bins[j]) {
-								histos[j][i]->Fill(data1);
-								histos[j][i]->Fill(data2);
-								break;
-							}
-						}
-
-						
-					} if(partons[i] == 't') {
-						for(int)
-						if(pT_gamma1[k]){
-							
+						if(id2 == -1){
+							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data2);
 
 						}
-					} */
+					}
+					if(parton == 'a'){
+						if(id1 == -2){
+							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data1);
+						}
+						if(id2 == -2){
+							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data2);
+						}
+					}
+					if(parton == 'g'){
+						if(id1 == 21){
+							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data1);
+						}
+						if(id2 == 21){
+							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data2);
+						}
+
+					}
+					
+
 				}
 				
 			}
@@ -368,13 +379,8 @@ class pt_histos{
 
 					
 
-					if(partons[j] == 'u') {
-						histos[i][j]->SetLineColor(j+1);
-					}if(partons[j] == 'd'){
-						histos[i][j]->SetLineColor(j+1);
-					}if(partons[j]){
-						histos[i][j]->SetLineColor(j+1);
-					}
+					histos[i][j]->SetLineColor(j+1);
+					
 	
 					//BinLogX(histogram);
 
@@ -383,7 +389,7 @@ class pt_histos{
 					if(split_pT_bins){
 						pT_bin_canvas->cd(i+1);
 						pT_bin_canvas->cd(i+1)->SetLogx();
-						pT_bin_canvas->cd(i+1)->SetLogy();
+						//pT_bin_canvas->cd(i+1)->SetLogy();
 					}
 
 						histos[i][j]->GetXaxis()->SetTitle("x");
@@ -415,15 +421,21 @@ class pt_histos{
 			for(int i = 0; i < partons.length(); i++){
 				char legend_buf[100];
 				pT_bin_canvas->cd(1);
-
-				if(partons[i] == 'u'){
+				char parton = partons[i];
+				if(parton == 'u'){
 					strcpy(legend_buf,(char*)"q_{u} Momentum Fraction");
 
-				}if(partons[i] == 'd'){
+				}if(parton == 'd'){
 					strcpy(legend_buf,(char*)"q_{d} Momentum Fraction");
 
-				}if(partons[i] == 't'){
+				}if(parton == 't'){
 					strcpy(legend_buf,(char*)"Total Momentum Fraction");
+				}if(parton == 'a'){
+					strcpy(legend_buf,(char*)"#overline{q_{u}} Momentum Fraction");
+				}if(parton == 'p'){
+					strcpy(legend_buf,(char*)"#overline{q_{d}} Momentum Fraction");
+				}if(parton == 'g'){
+					strcpy(legend_buf,(char*)"g Momentum Fraction");
 				}
 				legend->AddEntry(histos[0][i], legend_buf,"f");
 				legend->Draw("SAME");
