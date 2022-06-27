@@ -129,29 +129,6 @@ class frac_hists{
 		}
 };
 
-/*
-class pt_histos{
-	public:
-		pt_histos(int bins[]){
-			frac_hists bin_hists[sizeof(bins)-1];
-
-			for (int i = 0; i<sizeof(bins)-1; i++){
-				string name = string(bins[i]) + " < pT < " + string(i+1);
-				bin_hists[i] = frac_hists((char*) name);
-			}
-		}
-
-		void filler(int id,float data, float pT) {
-			
-		}
-
-		void show(){
-
-		}
-}; 
-
-
-*/
 
 
 
@@ -195,52 +172,14 @@ class pt_histos{
 			for(int i = 0; i<max_pT_bins - 1; i++) {
 				for(int j = 0; j < partons.length(); j++){
 					if(partons[j] == 'u'){
-
-						char buf[100];
-						const char* left_bound = std::to_string(pT_bins[i]).c_str();
-						const char* right_bound = std::to_string(pT_bins[i+1]).c_str();
-                                                strcpy(buf,(char*)"q_{u} Momentum Fraction ");
-						strcat(buf,name);
-						strcat(buf,left_bound);
-						strcat(buf,(char*)" - ");
-						strcat(buf,right_bound);
-
-
-						histos[i][j] = new TH1F(buf,buf,100,-3,0);
-						BinLogX(histos[i][j]);
-						
-
-	
+						create_new_histogram(pT_bins[i+1],pT_bins[i],histos[i][j],name,j);
 					}
 					if(partons[j] == 'd'){
-						
-						char buf[100];
-						const char* left_bound = std::to_string(pT_bins[i]).c_str();
-						const char* right_bound = std::to_string(pT_bins[i+1]).c_str();
-						
-						strcpy(buf,(char*)"q_{d} Momentum Fraction ");
-						strcat(buf,name);
-						strcat(buf,(char*)" - ");
-						strcat(buf,right_bound);
-
-						histos[i][j] = new TH1F(buf,buf,100,-3,0);
-
-						BinLogX(histos[i][j]);
+						create_new_histogram(pT_bins[i+1],pT_bins[i],histos[i][j],name,j);
+		
 					}
 					if(partons[j] == 't'){
-						char buf[100];
-						const char* left_bound = std::to_string(pT_bins[i]).c_str();
-						const char* right_bound = std::to_string(pT_bins[i+1]).c_str();
-
-						strcpy(buf,(char*)"Total Momentum Fraction ");
-						strcat(buf,name);
-						strcat(buf,(char*)" - ");
-						strcat(buf,right_bound);
-
-						histos[i][j] = new TH1F(buf,buf,100,-3,0);
-
-						BinLogX(histos[i][j]);
-
+						create_new_histogram(pT_bins[i+1],pT_bins[i],histos[i][j],name,j);
 					}
 				}
 			}
@@ -253,15 +192,43 @@ class pt_histos{
 
 		}
 
+		void create_new_histogram(float right_bound_in, float left_bound_in,TH1F* &histogram,char* name,int parton_idx){
+			char buf[100];
+			const char* left_bound = std::to_string(left_bound_in).c_str();
+
+			const char* right_bound = std::to_string(right_bound_in).c_str();
+
+
+			char parton = partons[parton_idx];
+			if(parton == 't'){
+				strcpy(buf,(char*)"Total ");
+			}
+			else if(parton == 'u'){
+				strcpy(buf,(char*)"q_{u} Momentum Fraction ");
+			} if(parton == 'd'){
+				strcpy(buf,(char*)"q_{d} Momentum Fraction ");
+			}
+			
+			strcat(buf,name);
+			strcat(buf,left_bound);
+			strcat(buf,(char*)" -  ");
+			strcat(buf,right_bound);
+
+			histogram = new TH1F(buf,buf,100,-3,0);
+
+			BinLogX(histogram);
+
+
+		}
+
 
 		void bin_filler(std::vector<float> pT_gamma1,std::vector<float> pT_gamma2,float pT_bin_right, float pT_bin_left, TH1F *histo, float data){
 	
-			if(pT_gamma1.size() == 0 and pT_gamma2.size() == 0){
-				cout << "AAaaaahh";
-
+			if(pT_gamma1.size() == 0 && pT_gamma2.size() == 0) {
+				return 0;
 			}
-
 			for(int i = 0; i < pT_gamma1.size();i++){
+			
 				if(pT_gamma1[i] < pT_bin_right and pT_gamma1[i] > pT_bin_left){
 					histo->Fill(data);
 
