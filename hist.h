@@ -145,13 +145,6 @@ gluon = g
 */
 
 class pt_histos{
-	//std::vector<TH1F*> up_histos;
-	std::vector<TH1F*> down_histos;
-	std::vector<TH1F*> aup_histos;
-	std::vector<TH1F*> adown_histos;
-	std::vector<TH1F*> gluon_histos;
-	//string partons;
-	//std::vector<float> pT_bins;
 	TCanvas* canvas;
 	int both;
 	string partons;
@@ -173,11 +166,9 @@ class pt_histos{
 
 		pt_histos(char* name,string partons_in, TCanvas* canvas_in,float pT_bins_in[], int show_both_hist) {
 			partons = partons_in;
-			//pT_bins = pT_bins_in;
 			canvas = canvas_in;
 			both = show_both_hist;
 
-			//TH1F *histos[pT_bins.size()][partons.length()];
 
 			for(int i = 0; i< max_pT_bins - 1;i++){
 				pT_bins[i] = *(pT_bins_in + i);
@@ -191,25 +182,7 @@ class pt_histos{
 					
 					create_new_histogram(pT_bin_right,pT_bin_left,histos[i][j],name,j);
 					
-					/*
-					if(parton == 'u'){
-						create_new_histogram(pT_bin_right,pT_bin_left,histos[i][j],name,j);
-					}
-					if(parton == 'd'){
-						create_new_histogram(pT_bin_right,pT_bin_left,histos[i][j],name,j);
-					}
-					if(parton == 't'){
-						create_new_histogram(pT_bin_right,pT_bin_left,histos[i][j],name,j);
-					}
-					if(parton == 'a'){
-						create_new_histogram(pT_bin_right,pT_bin_left,histos[i][j],name,j)
-					}
-					if(parton == 'p') {
-						create_new_histogram(pT_bin_right,pT_bins_left,histos[i][j],name,j)
-					}
-					if(parton == 'g'){
-						create_new_histogram
-					}*/
+
 				}
 			}
 			
@@ -223,6 +196,8 @@ class pt_histos{
 
 		void create_new_histogram(float right_bound_in, float left_bound_in,TH1F* &histogram,char* name,int parton_idx){
 			char buf[100];
+			char disp_buf[100];
+
 			const char* left_bound = std::to_string(left_bound_in).c_str();
 
 			const char* right_bound = std::to_string(right_bound_in).c_str();
@@ -249,7 +224,16 @@ class pt_histos{
 			strcat(buf,(char*)" -  ");
 			strcat(buf,right_bound);
 
-			histogram = new TH1F(buf,buf,100,-3,0);
+
+			//generate the name that will actually be displayed on the canvas
+			strcpy(disp_buf,(char*)"pT ");
+			strcat(disp_buf,left_bound);
+			strcat(disp_buf," GeV - ");
+			strcat(disp_buf,right_bound);
+			strcat(disp_buf," GeV");
+
+
+			histogram = new TH1F(buf,disp_buf,100,-3,0);
 
 			BinLogX(histogram);
 
@@ -350,7 +334,7 @@ class pt_histos{
 
 		}
 
-		void display(int split_pT_bins,float_t x_min,string normalization) {
+		void display(int split_pT_bins,float_t x_min,string normalization,string name) {
 			TCanvas* pT_bin_canvas = new TCanvas("pT_bin_canvas","pT_bin_canvas");
 			//pT_bin_canvas->SetLogx();
 			//pT_bin_canvas->SetLogy();
@@ -370,7 +354,7 @@ class pt_histos{
 			for(int i = 0; i< max_pT_bins - 1; i++){
 				int joint_integral = 0;
 				for(int j = 0; j < partons.length(); j++){				
-					histos[i][j]->SetLineColor(j+1);
+					histos[i][j]->SetLineColor(j+2);
 
 					//for separate normalization, we normalize each histogram by its own integral
 					//for joint, we sum the integrals of each partonic distribution and divide
@@ -398,6 +382,8 @@ class pt_histos{
 				}
 				
 			}
+
+			//legend handling
 			for(int i = 0; i < partons.length(); i++){
 				char legend_buf[100];
 				pT_bin_canvas->cd(1);
@@ -422,9 +408,15 @@ class pt_histos{
 				legend->Draw("SAME");
 			}
 
+			char name_buffer[100];
+			strcpy(name_buffer,(char*)(name.c_str()));
+			strcat(name_buffer,(char*)".pdf");
 
+			pT_bin_canvas->SaveAs(name_buffer);
 		
 		}
+
+		
 
 
 };
