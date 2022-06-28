@@ -42,7 +42,7 @@ void analysis() {
 	float pT_bins[5] = {5,6,8,10,16};
 	TCanvas* pT_bin_canvas = new TCanvas("canvas","pT bin canvas" );
 
-	pt_histos pT_cut_hist = pt_histos(" binned by pT ","udtg",pT_bin_canvas,pT_bins,0);
+	pt_histos pT_cut_hist = pt_histos(" binned by pT ","tapg",pT_bin_canvas,pT_bins,0);
 
 	int counter;
 
@@ -82,7 +82,7 @@ void analysis() {
 
 //	TCanvas* c3 = new TCanvas();
 //	eta_gamma_hist->Draw("c3");
-	pT_cut_hist.display(1, 1e-3);	
+	pT_cut_hist.display(1, 1e-3,"joint");	
 
 //	pT_cut_hist.up_histos[1]->Draw();
 }

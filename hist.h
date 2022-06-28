@@ -237,9 +237,9 @@ class pt_histos{
 			} if(parton == 'd'){
 				strcpy(buf,(char*)"q_{d} Momentum Fraction ");
 			} if(parton == 'a'){
-				strcpy(buf,(char*)"#overline{q_{u}} Momentum Fraction ");
+				strcpy(buf,(char*)"#bar{q_{u}} Momentum Fraction ");
 			} if(parton == 'p'){
-				strcpy(buf,(char*)"#overline{q_{d}} Momentum Fraction ");
+				strcpy(buf,(char*)"#bar{q_{d}} Momentum Fraction ");
 			} if(parton == 'g') {
 				strcpy(buf,(char*)"g Momentum Fraction");
 			}
@@ -350,7 +350,7 @@ class pt_histos{
 
 		}
 
-		void display(int split_pT_bins,float_t x_min) {
+		void display(int split_pT_bins,float_t x_min,string normalization) {
 			TCanvas* pT_bin_canvas = new TCanvas("pT_bin_canvas","pT_bin_canvas");
 			//pT_bin_canvas->SetLogx();
 			//pT_bin_canvas->SetLogy();
@@ -368,53 +368,33 @@ class pt_histos{
 
 			auto legend = new TLegend(0.1,0.7,0.48,0.9);
 			for(int i = 0; i< max_pT_bins - 1; i++){
-
+				int joint_integral = 0;
 				for(int j = 0; j < partons.length(); j++){				
-					//TH1F* histogram;
-//					histogram->GetXaxis()->SetRangeUser(x_min,1);
-//					histogram->GetXaxis()->SetLimits(1e-3,1.);
-	
-					//BinLogX(histogram);
-
-
-					
-
 					histos[i][j]->SetLineColor(j+1);
-					
-	
-					//BinLogX(histogram);
 
+					//for separate normalization, we normalize each histogram by its own integral
+					//for joint, we sum the integrals of each partonic distribution and divide
 					Double_t factor = 1;
-					histos[i][j]->Scale(factor / histos[i][j]->Integral());
+					if(normalization == "separate"){
+						histos[i][j]->Scale(factor / histos[i][j]->Integral());
+					}else if(normalization == "joint"){
+						joint_integral += histos[i][j]->Integral();
+					}
 					if(split_pT_bins){
 						pT_bin_canvas->cd(i+1);
 						pT_bin_canvas->cd(i+1)->SetLogx();
 						//pT_bin_canvas->cd(i+1)->SetLogy();
 					}
 
-						histos[i][j]->GetXaxis()->SetTitle("x");
-						histos[i][j]->Draw("SAME HIST E1");
-
-/*
-					char legend_buf[100];
-
-					const char* left_bound_leg = std::to_string(pT_bins[i]).c_str();
-					const char* right_bound_leg = std::to_string(pT_bins[i+1]).c_str();
-		
-					if(partons[j] == 'u'){
-						strcpy(legend_buf,(char*)"q_{u} Momentum Fraction pT");}
-					if(partons[j] == 'd'){
-						strcpy(legend_buf,(char*)"q_{d} Momentum Fraction pT");
-	
+					histos[i][j]->GetXaxis()->SetTitle("x");
+					histos[i][j]->Draw("SAME HIST E1");
+				}
+				if(normalization == "joint"){
+					Double_t factor = 1;
+					for(int j = 0; j < partons.length(); j++){
+						histos[i][j]->Scale(factor / joint_integral);
 					}
-					strcat(legend_buf,left_bound_leg);
-					strcat(legend_buf, (char*)" - ");
-					strcat(legend_buf,right_bound_leg);
-				
 
-					legend->AddEntry(histos[i][j], legend_buf,"f");
-					legend->Draw("SAME");
-*/
 				}
 				
 			}
@@ -422,18 +402,19 @@ class pt_histos{
 				char legend_buf[100];
 				pT_bin_canvas->cd(1);
 				char parton = partons[i];
+				if(parton == 't'){
+					strcpy(legend_buf,(char*)"Total Momentum Fraction");
+				}
 				if(parton == 'u'){
 					strcpy(legend_buf,(char*)"q_{u} Momentum Fraction");
 
 				}if(parton == 'd'){
 					strcpy(legend_buf,(char*)"q_{d} Momentum Fraction");
 
-				}if(parton == 't'){
-					strcpy(legend_buf,(char*)"Total Momentum Fraction");
 				}if(parton == 'a'){
-					strcpy(legend_buf,(char*)"#overline{q_{u}} Momentum Fraction");
+					strcpy(legend_buf,(char*)"#bar{q_{u}} Momentum Fraction");
 				}if(parton == 'p'){
-					strcpy(legend_buf,(char*)"#overline{q_{d}} Momentum Fraction");
+					strcpy(legend_buf,(char*)"#bar{q_{d}} Momentum Fraction");
 				}if(parton == 'g'){
 					strcpy(legend_buf,(char*)"g Momentum Fraction");
 				}
