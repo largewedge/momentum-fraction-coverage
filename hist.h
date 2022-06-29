@@ -350,7 +350,8 @@ class pt_histos{
 	
 			}
 
-			auto legend = new TLegend(0.1,0.7,0.48,0.9);
+			//auto legend = new TLegend(0.1,0.7,0.48,0.9);
+			auto legend = new TLegend();
 			for(int i = 0; i< max_pT_bins - 1; i++){
 				int joint_integral = 0;
 				for(int j = 0; j < partons.length(); j++){				
@@ -409,7 +410,8 @@ class pt_histos{
 			}
 
 			char name_buffer[100];
-			strcpy(name_buffer,(char*)(name.c_str()));
+			strcpy(name_buffer,(char*)("plots/"));
+			strcat(name_buffer,(char*)(name.c_str()));
 			strcat(name_buffer,(char*)".pdf");
 
 			pT_bin_canvas->SaveAs(name_buffer);
