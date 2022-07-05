@@ -1,3 +1,8 @@
+/*
+Recursive tree search for final state photons
+
+*/
+
 void has_daughter_gamma(TClonesArray* particles,TParticle* part,std::vector<float> &gammas, std::vector<float> &eta_gamma, float max_eta) {
 	int daughterid1, daughterid2;
 	daughterid1 = 0;

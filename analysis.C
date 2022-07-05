@@ -1,9 +1,10 @@
 #include "hist.h"
 #include "TStyle.h"
 
-void analysis(string name,string parton_string) {
-	TFile *f = new TFile("direct_gammas.root");
-	TTree *PHENIX = (TTree*)f->Get("PHENIX");
+void analysis(string name,string parton_string,string experiment) {
+	TFile *f = new TFile("root_files/direct_gammas.root");
+
+	TTree *GAMMA_TREE = (TTree*)f->Get("GAMMA_TREE");
 
 	Float_t pT1, pT2,pT_gamma;
 	Float_t eta1,eta2,eta_gamma;
@@ -13,24 +14,25 @@ void analysis(string name,string parton_string) {
 	std::vector<float> *gamma_pT2 = new std::vector<float>();
 	std::vector<float> *gamma_eta1 = new std::vector<float>();
 	std::vector<float> *gamma_eta2 = new std::vector<float>();
+	int entries;
 
-	PHENIX->SetBranchAddress("pT1",&pT1);
-	PHENIX->SetBranchAddress("pT2",&pT2);
-	PHENIX->SetBranchAddress("pT_gamma",&pT_gamma);
-	PHENIX->SetBranchAddress("eta1",&eta1);
-	PHENIX->SetBranchAddress("eta2",&eta2);
-	PHENIX->SetBranchAddress("eta_gamma",&eta_gamma);
-	PHENIX->SetBranchAddress("pdg1",&pdg1);
-	PHENIX->SetBranchAddress("pdg2",&pdg2);
-	PHENIX->SetBranchAddress("x1",&x1);
-	PHENIX->SetBranchAddress("x2",&x2);
-	PHENIX->SetBranchAddress("gammas1",&gamma_pT1);
-	PHENIX->SetBranchAddress("gammas2",&gamma_pT2);
-	PHENIX->SetBranchAddress("gamma_eta1",&gamma_eta1);
-	PHENIX->SetBranchAddress("gamma_eta2",&gamma_eta2);
 
-	int entries = PHENIX->GetEntries();
+	GAMMA_TREE->SetBranchAddress("pT1",&pT1);
+	GAMMA_TREE->SetBranchAddress("pT2",&pT2);
+	GAMMA_TREE->SetBranchAddress("pT_gamma",&pT_gamma);
+	GAMMA_TREE->SetBranchAddress("eta1",&eta1);
+	GAMMA_TREE->SetBranchAddress("eta2",&eta2);
+	GAMMA_TREE->SetBranchAddress("eta_gamma",&eta_gamma);
+	GAMMA_TREE->SetBranchAddress("pdg1",&pdg1);
+	GAMMA_TREE->SetBranchAddress("pdg2",&pdg2);
+	GAMMA_TREE->SetBranchAddress("x1",&x1);
+	GAMMA_TREE->SetBranchAddress("x2",&x2);
+	GAMMA_TREE->SetBranchAddress("gammas1",&gamma_pT1);
+	GAMMA_TREE->SetBranchAddress("gammas2",&gamma_pT2);
+	GAMMA_TREE->SetBranchAddress("gamma_eta1",&gamma_eta1);
+	GAMMA_TREE->SetBranchAddress("gamma_eta2",&gamma_eta2);
 
+	entries = GAMMA_TREE->GetEntries();
 	//gStyle->SetLimits(0.001,1.,"x");
 
 	//TH1F* mom_frac = new TH1F("Momentum Fraction", "Momentum Fraction",100,0,1);
@@ -45,9 +47,18 @@ void analysis(string name,string parton_string) {
 	pt_histos pT_cut_hist = pt_histos(" pT ",parton_string,pT_bin_canvas,pT_bins,0);
 
 	int counter;
+	float max_eta;
+
+	if(experiment == "PHENIX"){
+		max_eta = 0.35;
+	}else if(experiment == "sPHENIX"){
+		max_eta = 1.1;
+	}
 
 	for(int i = 0; i<entries; i++) {
-		PHENIX->GetEntry(i);
+
+		GAMMA_TREE->GetEntry(i);
+
 		//mom_frac->Fill(x1);
 		//
 		all_pT.filler(pdg1,x1);
@@ -60,7 +71,8 @@ void analysis(string name,string parton_string) {
 			eta_gamma_hist->Fill((*gamma_eta2)[i]);
 		}
 
-		pT_cut_hist.filler(pdg1,pdg2,x1,x2,*gamma_pT1,*gamma_pT2,counter);
+
+		pT_cut_hist.filler(pdg1,pdg2,x1,x2,*gamma_pT1,*gamma_pT2, *gamma_eta1,*gamma_eta2,counter,max_eta);
 
 
 

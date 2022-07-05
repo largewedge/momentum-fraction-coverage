@@ -241,20 +241,20 @@ class pt_histos{
 		}
 
 
-		void bin_filler(std::vector<float> pT_gamma1,std::vector<float> pT_gamma2,float pT_bin_right, float pT_bin_left, TH1F *histo, float data){
+		void bin_filler(std::vector<float> pT_gamma1,std::vector<float> pT_gamma2, std::vector<float> eta1,std::vector<float> eta2,float pT_bin_right, float pT_bin_left, TH1F *histo, float data,float max_eta){
 	
 			if(pT_gamma1.size() == 0 && pT_gamma2.size() == 0) {
 				return 0;
 			}
 			for(int i = 0; i < pT_gamma1.size();i++){
 			
-				if(pT_gamma1[i] < pT_bin_right and pT_gamma1[i] > pT_bin_left){
+				if(pT_gamma1[i] < pT_bin_right and pT_gamma1[i] > pT_bin_left and (eta1[i] < max_eta and eta1[i] > - max_eta)){
 					histo->Fill(data);
 
 				}
 			}
 			for(int i = 0; i < pT_gamma2.size();i++){
-				if(pT_gamma2[i] < pT_bin_right and pT_gamma2[i] > pT_bin_left){
+				if(pT_gamma2[i] < pT_bin_right and pT_gamma2[i] > pT_bin_left and (eta2[i] < max_eta and eta2[i] > - max_eta)){
 					histo->Fill(data);
 				}
 			}
@@ -264,7 +264,7 @@ class pt_histos{
 
 
 
-		void filler(int id1,int id2, float data1,float data2, std::vector<float> pT_gamma1, std::vector<float> pT_gamma2, int &counter){
+		void filler(int id1,int id2, float data1,float data2, std::vector<float> pT_gamma1, std::vector<float> pT_gamma2, std::vector<float> eta1,std::vector<float> eta2, int &counter, float max_eta){
 
 
 			int num_gammas1 = pT_gamma1.size();
@@ -279,50 +279,50 @@ class pt_histos{
 					float pT_bin_left = pT_bins[j];
 					if(parton == 'u'){
 						if(id1 == 2){
-							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data1);
+							bin_filler(pT_gamma1,pT_gamma2,eta1,eta2,pT_bin_right,pT_bin_left,histos[j][i],data1,max_eta);
 						}
 						if(id2 == 2) {
-							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data2);
+							bin_filler(pT_gamma1,pT_gamma2,eta1,eta2,pT_bin_right,pT_bin_left,histos[j][i],data2,max_eta);
 						}
 					}
 
 					if(parton == 'd'){
 						if(id1 == 1){
-							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data1);
+							bin_filler(pT_gamma1,pT_gamma2,eta1,eta2,pT_bin_right,pT_bin_left,histos[j][i],data1,max_eta);
 						}
 						if(id2 == 1){
-							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data2);
+							bin_filler(pT_gamma1,pT_gamma2,eta1,eta2,pT_bin_right,pT_bin_left,histos[j][i],data2,max_eta);
 						}
 					}
 					if(parton == 't'){
-						bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data1);
-						bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data2);
+						bin_filler(pT_gamma1,pT_gamma2,eta1,eta2,pT_bin_right,pT_bin_left,histos[j][i],data1,max_eta);
+						bin_filler(pT_gamma1,pT_gamma2,eta1,eta2,pT_bin_right,pT_bin_left,histos[j][i],data2,max_eta);
 
 					}
 
 					if(parton == 'p'){
 						if(id1 == -1){
-							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data1);
+							bin_filler(pT_gamma1,pT_gamma2,eta1,eta2,pT_bin_right,pT_bin_left,histos[j][i],data1,max_eta);
 						}
 						if(id2 == -1){
-							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data2);
+							bin_filler(pT_gamma1,pT_gamma2,eta1,eta2,pT_bin_right,pT_bin_left,histos[j][i],data2,max_eta);
 
 						}
 					}
 					if(parton == 'a'){
 						if(id1 == -2){
-							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data1);
+							bin_filler(pT_gamma1,pT_gamma2,eta1,eta2,pT_bin_right,pT_bin_left,histos[j][i],data1,max_eta);
 						}
 						if(id2 == -2){
-							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data2);
+							bin_filler(pT_gamma1,pT_gamma2,eta1,eta2,pT_bin_right,pT_bin_left,histos[j][i],data2,max_eta);
 						}
 					}
 					if(parton == 'g'){
 						if(id1 == 21){
-							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data1);
+							bin_filler(pT_gamma1,pT_gamma2,eta1,eta2,pT_bin_right,pT_bin_left,histos[j][i],data1,max_eta);
 						}
 						if(id2 == 21){
-							bin_filler(pT_gamma1,pT_gamma2,pT_bin_right,pT_bin_left,histos[j][i],data2);
+							bin_filler(pT_gamma1,pT_gamma2,eta1,eta2,pT_bin_right,pT_bin_left,histos[j][i],data2,max_eta);
 						}
 
 					}

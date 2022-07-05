@@ -23,9 +23,8 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 1){
 	pythia8->ReadString("Random:setSeed = on");
 
 	pythia8->ReadString("Random:seed = 42");
-//	pythia8->ReadString("PhaseSpace:pTHatMin = 9.5");
-	pythia8->ReadString("PhaseSpace:pTHatMax = 15.5");
-
+	//pythia8->ReadString("PhaseSpace:pTHatMin = 9.5");
+	pythia8->ReadString("PhaseSpace:pTHatMax = 16.5");
 	Double_t b_energy = 200;
 	float max_eta_PHENIX = 0.35;
 	float max_eta_sPHENIX = 1.1;
@@ -39,23 +38,25 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 1){
 	std::vector<float> gamma_pT2;
 	std::vector<float> gamma_eta1;
 	std::vector<float> gamma_eta2;
+	TTree *GAMMA_TREE = new TTree("GAMMA_TREE","");
 
-	TTree *PHENIX = new TTree("PHENIX","");
 
-	PHENIX->Branch("pT1",&pT1,"pT1/F");
-	PHENIX->Branch("pT2",&pT2,"pT2/F");
-	PHENIX->Branch("pT_gamma",&pT_gamma,"pT_gamma/F");
-	PHENIX->Branch("eta1",&eta1,"eta1/F");
-	PHENIX->Branch("eta2",&eta2,"eta2/F");
-	PHENIX->Branch("eta_gamma",&eta_gamma,"eta_gamma/F");
-	PHENIX->Branch("pdg1",&pdg1,"pdg1/I");
-	PHENIX->Branch("pdg2",&pdg2,"pdg2/I");
-	PHENIX->Branch("x1",&x1,"x1/F");
-	PHENIX->Branch("x2",&x2,"x2/F");
-	PHENIX->Branch("gammas1","std::vector<float>",&gamma_pT1);
-	PHENIX->Branch("gammas2","std::vector<float>",&gamma_pT2);
-	PHENIX->Branch("gamma_eta1","std::vector<float>",&gamma_eta1);
-	PHENIX->Branch("gamma_eta2","std::vector<float>",&gamma_eta2);
+	GAMMA_TREE->Branch("pT1",&pT1,"pT1/F");
+	GAMMA_TREE->Branch("pT2",&pT2,"pT2/F");
+	GAMMA_TREE->Branch("pT_gamma",&pT_gamma,"pT_gamma/F");
+	GAMMA_TREE->Branch("eta1",&eta1,"eta1/F");
+	GAMMA_TREE->Branch("eta2",&eta2,"eta2/F");
+	GAMMA_TREE->Branch("eta_gamma",&eta_gamma,"eta_gamma/F");
+	GAMMA_TREE->Branch("pdg1",&pdg1,"pdg1/I");
+	GAMMA_TREE->Branch("pdg2",&pdg2,"pdg2/I");
+	GAMMA_TREE->Branch("x1",&x1,"x1/F");
+	GAMMA_TREE->Branch("x2",&x2,"x2/F");
+	GAMMA_TREE->Branch("gammas1","std::vector<float>",&gamma_pT1);
+	GAMMA_TREE->Branch("gammas2","std::vector<float>",&gamma_pT2);
+	GAMMA_TREE->Branch("gamma_eta1","std::vector<float>",&gamma_eta1);
+	GAMMA_TREE->Branch("gamma_eta2","std::vector<float>",&gamma_eta2);
+
+
 
 	//Event loop
 	//
@@ -104,13 +105,15 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 1){
 				gamma_seen = 1;
 				gamma_pT1.resize(0);
 				gamma_eta1.resize(0);
+				//only save final state photons that satisfy sPHENIX eta cuts, which will also satisfy PHENIX cuts
+				has_daughter_gamma(particles,part,gamma_pT1,gamma_eta1,max_eta_sPHENIX);
 
-				has_daughter_gamma(particles,part,gamma_pT1,gamma_eta1,max_eta_PHENIX);
 			}else{
 				gamma_pT2.resize(0);
 				gamma_eta2.resize(0);
+				has_daughter_gamma(particles,part,gamma_pT2,gamma_eta2,max_eta_sPHENIX);	
 
-				has_daughter_gamma(particles,part,gamma_pT2,gamma_eta2,max_eta_PHENIX);
+
 			}
 
 
@@ -122,13 +125,13 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 1){
 
 		}
 		if(gamma_seen == 1){
-			PHENIX->Fill();
+			GAMMA_TREE->Fill();			
 		}
 
 	}
 
 
-	TFile *dir_gamma = new TFile("direct_gammas.root","CREATE");
-	PHENIX->Write();
+	TFile *dir_gamma = new TFile("root_files/direct_gammas.root","CREATE");
+	GAMMA_TREE->Write();
 
 }
