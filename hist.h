@@ -363,7 +363,9 @@ class pt_histos{
 					if(normalization == "separate"){
 						histos[i][j]->Scale(factor / histos[i][j]->Integral());
 					}else if(normalization == "joint"){
-						joint_integral += histos[i][j]->Integral();
+						if(partons[j] != 't'){
+							joint_integral += histos[i][j]->Integral();
+						}
 					}
 					if(split_pT_bins){
 						pT_bin_canvas->cd(i+1);
@@ -373,6 +375,7 @@ class pt_histos{
 
 					histos[i][j]->GetXaxis()->SetTitle("x");
 					histos[i][j]->Draw("SAME HIST E1");
+					histos[i][j]->GetYaxis()->SetRangeUser(0,0.03);
 				}
 				if(normalization == "joint"){
 					Double_t factor = 1;

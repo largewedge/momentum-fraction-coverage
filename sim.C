@@ -23,7 +23,7 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 1){
 	pythia8->ReadString("Random:setSeed = on");
 
 	pythia8->ReadString("Random:seed = 42");
-	//pythia8->ReadString("PhaseSpace:pTHatMin = 9.5");
+	pythia8->ReadString("PhaseSpace:pTHatMin = 4");
 	pythia8->ReadString("PhaseSpace:pTHatMax = 16.5");
 	Double_t b_energy = 200;
 	float max_eta_PHENIX = 0.35;
