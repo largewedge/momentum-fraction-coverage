@@ -323,14 +323,46 @@ class pt_histos{
 						}
 						if(id2 == 21){
 							bin_filler(pT_gamma1,pT_gamma2,eta1,eta2,pT_bin_right,pT_bin_left,histos[j][i],data2,max_eta);
-						}
-
+						}			
+				
 					}
-					
 
 				}
-				
 			}
+		}
+
+		void heavy_bin_filler(float pT_bin_left,float pT_bin_right,float pT,TH1F* histo,float data){
+			if(pT < pT_bin_right and pT > pT_bin_left){
+				histo->Fill(data);
+			}
+		}
+
+
+		void heavy_filler(int pdg1,int pdg2,float x1,float x2,float pT){
+	
+			for(int i = 0; i<max_pT_bins-1; i++){
+
+				for(int j = 0; j < partons.length();j++){
+					float pT_bin_left = pT_bins[i];
+					float pT_bin_right = pT_bins[i+1];
+					char parton = partons[j];
+
+
+
+
+					if(parton == 'u'){
+						if(pdg1 == 2){
+							heavy_bin_filler(pT_bin_left,pT_bin_right,pT,histos[i][j],x1);
+						}
+						if(pdg2 == 2){
+							heavy_bin_filler(pT_bin_left,pT_bin_right,pT,histos[i][j],x2);
+						}
+					}
+
+
+				}
+			}
+
 
 		}
 
@@ -421,9 +453,7 @@ class pt_histos{
 		
 		}
 
-		
+};	
 
-
-};
 
 

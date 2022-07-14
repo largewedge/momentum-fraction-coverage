@@ -26,7 +26,7 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 	pythia8->ReadString("Random:seed = 42");
 	pythia8->ReadString("PhaseSpace:pTHatMin = 4");
 	pythia8->ReadString("PhaseSpace:pTHatMax = 16.5");
-	pythia8->ReadString("211:mayDecay = off");
+	//pythia8->ReadString("211:mayDecay = off");
 	//pythia8->ReadString("421:mayDecay = off");
 	Double_t b_energy = 200;
 	float max_eta_PHENIX = 0.35;
@@ -42,7 +42,6 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 	std::vector<Int_t> pdg_out;
 	Float_t x1,x2,pT1,pT2;
 	Int_t pdg1,pdg2;
-	std::vector<Int_t> ist;
 	std::vector<Int_t> mother_id;
 
 	TTree *HEAVY_TREE = new TTree("HEAVY_TREE","");
@@ -60,13 +59,19 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 	HEAVY_TREE->Branch("pT1",&pT1,"pT1/F");
 	HEAVY_TREE->Branch("pT2",&pT2,"pT2/F");
 	HEAVY_TREE->Branch("pdg_out","std::vector<Int_t>",&pdg_out);
-	HEAVY_TREE->Branch("ist","std::vector<Int_t>",&ist);
 	HEAVY_TREE->Branch("mother_id","std::vector<Int_t>",&mother_id);
 
 	//an array of all of the particle ids for charmed and bottom hadrons that we care about
-	//Int_t pids[] = {411,421,413,423,415,425,431,433,435};
-	Int_t pids[] = {211};
+	Int_t pids[] = {411,421,413,423,415,425,431,433,435};
+	//Int_t pids[] = {211};
 	int pids_length = sizeof(pids) / sizeof(pids[0]);
+
+	//turn off decays for all particles of interest so we can treat them as final state particles
+
+	for(int i = 0; i < pids_length; i++){
+		const char* input = (char*)(std::to_string(pids[i]) + ":mayDecay = off").c_str();
+		pythia8->ReadString(input);
+	}
 
 
 	//Event loop
@@ -105,24 +110,24 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 
 		for (Int_t ip = 4; ip < np; ip++) {
 			TParticle* part = (TParticle*) particles->At(ip);
-			//Int_t ist = part->GetStatusCode();
+			Int_t ist = part->GetStatusCode();
 			Int_t pdg = part->GetPdgCode();
 
 			//assign pseudorapidity, pt etc to tree variables temporarily, only fill tree if cuts are satisfied
-
+			Float_t eta_p = part->Eta();
 			for(int i = 0; i < pids_length;i++){
+
 				if(pdg == pids[i]){
-					/*
-					Here we need to project the particle 4-vector radially outward and check whether it interesects with the relevant eta range
-					*/
+					if(eta_p > max_eta_sPHENIX || eta_p < - max_eta_sPHENIX) continue;
+					//if(ist <= 0) continue;
+
 					pT.push_back(part->Pt());
-					eta.push_back(part->Eta());
+					eta.push_back(eta_p);
 					px.push_back(part->Px());
 					py.push_back(part->Py());
 					pz.push_back(part->Pz());
 					e.push_back(part->Energy());
 					pdg_out.push_back(pdg);
-					ist.push_back(part->GetStatusCode());
 					if(part->GetMother(1) >= 0){
 						TParticle* mother = (TParticle*) particles->At(part->GetMother(1));
 						mother_id.push_back(mother->GetPdgCode());
@@ -136,6 +141,15 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 		}
 		if(heavy_seen == 1){
 			HEAVY_TREE->Fill();
+			//We have to clear our vectors, otherwise they grow without bound and the computer runs out of memory
+			pT.resize(0);
+			eta.resize(0);
+			px.resize(0);
+			py.resize(0);
+			pz.resize(0);
+			e.resize(0);
+			pdg_out.resize(0);
+			mother_id.resize(0);
 		}
 
 	}
