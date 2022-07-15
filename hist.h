@@ -359,6 +359,46 @@ class pt_histos{
 						}
 					}
 
+					if(parton == 'd'){
+						if(pdg1 == 1){
+							heavy_bin_filler(pT_bin_left,pT_bin_right,pT,histos[i][j],x1);
+						}
+						if(pdg2 == 1){
+							heavy_bin_filler(pT_bin_left,pT_bin_right,pT,histos[i][j],x2);
+						}
+					}
+
+					if(parton == 'g'){
+						if(pdg1 == 21){
+							heavy_bin_filler(pT_bin_left,pT_bin_right,pT,histos[i][j],x1);
+						}
+						if(pdg2 == 21){
+							heavy_bin_filler(pT_bin_left,pT_bin_right,pT,histos[i][j],x2);
+						}
+					}
+
+					if(parton == 'p'){
+						if(pdg1 == -1){
+							heavy_bin_filler(pT_bin_left,pT_bin_right,pT,histos[i][j],x1);
+						}
+						if(pdg2 == -1){
+							heavy_bin_filler(pT_bin_left,pT_bin_right,pT,histos[i][j],x2);
+						}
+					}
+					if(parton == 'a'){
+						if(pdg1 == -2){
+							heavy_bin_filler(pT_bin_left,pT_bin_right,pT,histos[i][j],x1);
+						}
+						if(pdg2 == -2){
+							heavy_bin_filler(pT_bin_left,pT_bin_right,pT,histos[i][j],x2);
+						}
+					}
+
+					if(parton == 't'){
+						heavy_bin_filler(pT_bin_left,pT_bin_right,pT,histos[i][j],x1);
+						heavy_bin_filler(pT_bin_left,pT_bin_right,pT,histos[i][j],x2);
+					}
+
 
 				}
 			}

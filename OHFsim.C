@@ -62,7 +62,7 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 	HEAVY_TREE->Branch("mother_id","std::vector<Int_t>",&mother_id);
 
 	//an array of all of the particle ids for charmed and bottom hadrons that we care about
-	Int_t pids[] = {411,421,413,423,415,425,431,433,435};
+	Int_t pids[] = {411,421,413,423,415,425,431,433,435,511,521,513,523,515,525,531,533,535,541,543,545};
 	//Int_t pids[] = {211};
 	int pids_length = sizeof(pids) / sizeof(pids[0]);
 
@@ -117,7 +117,7 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 			Float_t eta_p = part->Eta();
 			for(int i = 0; i < pids_length;i++){
 
-				if(pdg == pids[i]){
+				if(pdg == pids[i] or pdg == - pids[i]){
 					if(eta_p > max_eta_sPHENIX || eta_p < - max_eta_sPHENIX) continue;
 					//if(ist <= 0) continue;
 
