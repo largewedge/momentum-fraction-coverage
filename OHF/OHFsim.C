@@ -63,8 +63,13 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 
 	//an array of all of the particle ids for charmed and bottom hadrons that we care about
 	Int_t pids[] = {411,421,413,423,415,425,431,433,435,511,521,513,523,515,525,531,533,535,541,543,545};
+
+	Int_t charmed_baryons[] = {4122,4222,4212,4112,4224,4214,4114,4232,4132,4322,4312,4324,4314,4332,4334,4412,4422,4414,4424,4432,4434,4444};
+	Int_t bottom_baryons[] = {5122,5112,5212,5222,5114,5214,5224,5132,5232,5312,5322,5314,5324,5332,5334,5142,5242,5412,5422,5414,5424,5342,5432,5434,5442,5444,5512,5522,5514,5524,5532,5534,5542,5544,5554};
 	//Int_t pids[] = {211};
 	int pids_length = sizeof(pids) / sizeof(pids[0]);
+	int charm_length = sizeof(charmed_baryons) / sizeof(charmed_baryons[0]);
+	int bottom_length = sizeof(bottom_baryons) / sizeof(bottom_baryons[0]);
 
 	//turn off decays for all particles of interest so we can treat them as final state particles
 
@@ -115,10 +120,10 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 
 			//assign pseudorapidity, pt etc to tree variables temporarily, only fill tree if cuts are satisfied
 			Float_t eta_p = part->Eta();
+			if(eta_p > max_eta_sPHENIX || eta_p < - max_eta_sPHENIX) continue;
 			for(int i = 0; i < pids_length;i++){
 
 				if(pdg == pids[i] or pdg == - pids[i]){
-					if(eta_p > max_eta_sPHENIX || eta_p < - max_eta_sPHENIX) continue;
 					//if(ist <= 0) continue;
 
 					pT.push_back(part->Pt());
@@ -134,6 +139,48 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 					}
 
 					heavy_seen = 1;
+				}
+
+				
+			}
+
+			for(int i = 0; i < charm_length; i++){
+				if(pdg == charmed_baryons[i] or pdg == - charmed_baryons[i]){
+					pT.push_back(part->Pt());
+					eta.push_back(eta_p);
+					px.push_back(part->Px());
+					py.push_back(part->Py());
+					pz.push_back(part->Pz());
+					e.push_back(part->Energy());
+					pdg_out.push_back(pdg);
+					if(part->GetMother(1) >= 0){
+						TParticle* mother = (TParticle*) particles->At(part->GetMother(1));
+						mother_id.push_back(mother->GetPdgCode());
+					}
+
+					heavy_seen = 1;
+
+
+				}
+			}
+
+			for(int i = 0; i < bottom_length; i++){
+				if(pdg == bottom_baryons[i] or pdg == - bottom_baryons[i]){
+					pT.push_back(part->Pt());
+					eta.push_back(eta_p);
+					px.push_back(part->Px());
+					py.push_back(part->Py());
+					pz.push_back(part->Pz());
+					e.push_back(part->Energy());
+					pdg_out.push_back(pdg);
+					if(part->GetMother(1) >= 0){
+						TParticle* mother = (TParticle*) particles->At(part->GetMother(1));
+						mother_id.push_back(mother->GetPdgCode());
+					}
+
+					heavy_seen = 1;
+
+
 				}
 			}
 

@@ -468,15 +468,15 @@ class pt_histos{
 					strcpy(legend_buf,(char*)"Total Momentum Fraction");
 				}
 				if(parton == 'u'){
-					strcpy(legend_buf,(char*)"q_{u} Momentum Fraction");
+					strcpy(legend_buf,(char*)"up Momentum Fraction");
 
 				}if(parton == 'd'){
-					strcpy(legend_buf,(char*)"q_{d} Momentum Fraction");
+					strcpy(legend_buf,(char*)"down Momentum Fraction");
 
 				}if(parton == 'a'){
-					strcpy(legend_buf,(char*)"#bar{q_{u}} Momentum Fraction");
+					strcpy(legend_buf,(char*)"antiup Momentum Fraction");
 				}if(parton == 'p'){
-					strcpy(legend_buf,(char*)"#bar{q_{d}} Momentum Fraction");
+					strcpy(legend_buf,(char*)"antidown Momentum Fraction");
 				}if(parton == 'g'){
 					strcpy(legend_buf,(char*)"g Momentum Fraction");
 				}
