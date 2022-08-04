@@ -144,6 +144,14 @@ gluon = g
 
 */
 
+//a trick to convert floats into a string representation
+template < typename Type > std::string to_str (const Type & t)
+{
+  std::ostringstream os;
+  os << t;
+  return os.str ();
+}
+
 class pt_histos{
 	TCanvas* canvas;
 	int both;
@@ -170,15 +178,17 @@ class pt_histos{
 			both = show_both_hist;
 
 
-			for(int i = 0; i< max_pT_bins - 1;i++){
+			for(int i = 0; i< max_pT_bins+1;i++){
 				pT_bins[i] = *(pT_bins_in + i);
 			}
 
-			for(int i = 0; i<max_pT_bins - 1; i++) {
+			for(int i = 0; i<max_pT_bins; i++) {
 				for(int j = 0; j < partons.length(); j++){
 					char parton = partons[j];
 					float pT_bin_right = pT_bins[i+1];
 					float pT_bin_left = pT_bins[i];
+
+					//cout << pT_bin_left << " " << pT_bin_right << '\n';
 					
 					create_new_histogram(pT_bin_right,pT_bin_left,histos[i][j],name,j);
 					
@@ -198,9 +208,22 @@ class pt_histos{
 			char buf[100];
 			char disp_buf[100];
 
-			const char* left_bound = std::to_string(left_bound_in).c_str();
+			//const char* left_bound = (std::to_string(left_bound_in)).c_str();
 
-			const char* right_bound = std::to_string(right_bound_in).c_str();
+			//const char* right_bound = (std::to_string(right_bound_in)).c_str();
+
+
+			/*for reasons that escape me, doing the conversion to const char* in two lines is
+			different from doing it in one*/
+
+			std::string left_bound = to_str(left_bound_in);
+
+			std::string right_bound = to_str(right_bound_in);
+
+			const char* left = left_bound.c_str();
+
+			const char* right = right_bound.c_str();
+
 
 
 			char parton = partons[parton_idx];
@@ -220,16 +243,16 @@ class pt_histos{
 			}
 			
 			strcat(buf,name);
-			strcat(buf,left_bound);
+			strcat(buf,left);
 			strcat(buf,(char*)" -  ");
-			strcat(buf,right_bound);
+			strcat(buf,right);
 
 
 			//generate the name that will actually be displayed on the canvas
 			strcpy(disp_buf,(char*)"pT ");
-			strcat(disp_buf,left_bound);
+			strcat(disp_buf,left);
 			strcat(disp_buf," GeV - ");
-			strcat(disp_buf,right_bound);
+			strcat(disp_buf,right);
 			strcat(disp_buf," GeV");
 
 
@@ -273,7 +296,7 @@ class pt_histos{
 				//if there are no final state photons, don't plot anything
 				if(num_gammas1 == 0 and num_gammas2 == 0) break;
 
-				for(int j = 0; j < max_pT_bins - 1; j++){
+				for(int j = 0; j < max_pT_bins; j++){
 					char parton = partons[i];
 					float pT_bin_right = pT_bins[j+1];
 					float pT_bin_left = pT_bins[j];
@@ -340,7 +363,7 @@ class pt_histos{
 
 		void heavy_filler(int pdg1,int pdg2,float x1,float x2,float pT){
 	
-			for(int i = 0; i<max_pT_bins-1; i++){
+			for(int i = 0; i<max_pT_bins; i++){
 
 				for(int j = 0; j < partons.length();j++){
 					float pT_bin_left = pT_bins[i];
@@ -418,13 +441,13 @@ class pt_histos{
 			}
 
 			if(split_pT_bins) {
-				pT_bin_canvas->Divide(2,int((max_pT_bins -1)/ 2));
+				pT_bin_canvas->Divide(2,int((max_pT_bins)/ 2));
 	
 			}
 
 			//auto legend = new TLegend(0.1,0.7,0.48,0.9);
 			auto legend = new TLegend();
-			for(int i = 0; i< max_pT_bins - 1; i++){
+			for(int i = 0; i< max_pT_bins; i++){
 				int joint_integral = 0;
 				for(int j = 0; j < partons.length(); j++){				
 					histos[i][j]->SetLineColor(j+2);
@@ -432,6 +455,10 @@ class pt_histos{
 					//for separate normalization, we normalize each histogram by its own integral
 					//for joint, we sum the integrals of each partonic distribution and divide
 					Double_t factor = 1;
+					if(histos[i][j]->Integral() == 0){
+						cout << "Oops\n";
+						continue;
+					}
 					if(normalization == "separate"){
 						histos[i][j]->Scale(factor / histos[i][j]->Integral());
 					}else if(normalization == "joint"){

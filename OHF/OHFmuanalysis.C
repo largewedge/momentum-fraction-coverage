@@ -37,13 +37,16 @@ void analysis(string name,string parton_string,string experiment) {
 	entries = HEAVY_TREE->GetEntries();
 	//gStyle->SetLimits(0.001,1.,"x");
 
-	float pT_bins[5] = {5,6,8,10,16};
+	//float pT_bins[5] = {5,6,8,10,16};
+	float pT_bins[7] = {1.25,1.50,2.00,2.50,3.00,3.50,5.00};
 	TCanvas* pT_bin_canvas = new TCanvas("canvas","pT bin canvas" );
 
 	pt_histos pT_cut_hist = pt_histos(" pT ",parton_string,pT_bin_canvas,pT_bins,0);
 
 	int counter;
 	float max_eta;
+	Float_t north_max_eta = 2.4;
+	Float_t north_min_eta = 1.2;
 
 
 
@@ -66,6 +69,7 @@ void analysis(string name,string parton_string,string experiment) {
 			//pseudorapidity cut
 			//std::vector<float> eta_in = *eta;
 			//if(eta_in[id] > max_eta or eta_in[id] < - max_eta) continue;
+			//if(eta_in[id] > north_max_eta || eta_in[id] < north_min_eta) continue;
 
 
 

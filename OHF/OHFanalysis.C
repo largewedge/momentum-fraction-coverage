@@ -1,4 +1,4 @@
-#include "hist.h"
+#include "../hist.h"
 #include "TStyle.h"
 
 void analysis(string name,string parton_string,string experiment) {
@@ -44,6 +44,8 @@ void analysis(string name,string parton_string,string experiment) {
 
 	int counter;
 	float max_eta;
+
+
 
 	if(experiment == "PHENIX"){
 		max_eta = 0.35;

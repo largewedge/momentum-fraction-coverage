@@ -50,6 +50,7 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 	Int_t pdg1,pdg2;
 	std::vector<Int_t> mother_id;
 	std::vector<float> muon_eta;
+	std::vector<float> muon_pt;
 
 	TTree *HEAVY_TREE = new TTree("HEAVY_TREE","");
 
@@ -67,7 +68,8 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 	HEAVY_TREE->Branch("pT2",&pT2,"pT2/F");
 	HEAVY_TREE->Branch("pdg_out","std::vector<Int_t>",&pdg_out);
 	HEAVY_TREE->Branch("mother_id","std::vector<Int_t>",&mother_id);
-	//HEAVY_TREE->Branch("muon_eta","std::vector<float>",&muon_eta);
+	HEAVY_TREE->Branch("muon_eta","std::vector<float>",&muon_eta);
+	HEAVY_TREE->Branch("muon_pt","std::vector<float>",&muon_pt);
 
 	//an array of all of the particle ids for charmed and bottom hadrons that we care about
 	Int_t pids[] = {411,421,413,423,415,425,431,433,435,511,521,513,523,515,525,531,533,535,541,543,545};
@@ -122,184 +124,82 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 
 		int heavy_seen = 0;
 
+		bool has_muon = false;
+
 		for (Int_t ip = 4; ip < np; ip++) {
 			TParticle* part = (TParticle*) particles->At(ip);
 			Int_t ist = part->GetStatusCode();
 			Int_t pdg = part->GetPdgCode();
 
-			if(ist <= 0) continue;
+			//if(ist <= 0) continue;
+
+			
 
 
+			for(int i = 0; i < light_d_mesons_length; i++){
+				if(pdg == light_d_mesons[i] || pdg == - light_d_mesons[i]){
 
-
-			//assign pseudorapidity, pt etc to tree variables temporarily, only fill tree if cuts are satisfied
-			Float_t eta_p = part->Eta();
-			if((eta_p > north_max_eta || eta_p < north_min_eta) && (eta_p > south_max_eta || eta_p < south_min_eta)) continue;
-
-			bool has_muon = false;
-
-			int iterations = 0;
-			int second_iterations = 0;
-
-			int mother_ohf_idx;
-				
-
-				
-			if(pdg == 13 || pdg == - 13){
-					//if(ist <= 0) continue;
-					/*
 					if(part->GetLastDaughter() >= np || part->GetLastDaughter() < 0) continue;
 					if(part->GetDaughter(1) >= 0){
-					//	cout << "New particle time!\n";
+		
 						for(int j = part->GetFirstDaughter(); j <= part->GetLastDaughter();j++){
 							TParticle* daughter = (TParticle*) particles->At(j);
 							int daughterid = daughter->GetPdgCode();
-						//	cout << daughterid << '\n';
+							//cout << daughterid << '\n';
 							if(daughterid == 13 || daughterid == -13){
+								int muon_status = daughter->GetStatusCode();
+
+								if(muon_status <= 0){
+									cout << "Non-final state muon?\n";
+									continue;
+								}
+
+
+								//apply pseudorapidity cuts
+								float eta_p = daughter->Eta();
+
+								if((eta_p > north_max_eta || eta_p < north_min_eta) && (eta_p > south_max_eta || eta_p < south_min_eta)) continue;
+
+								eta.push_back(eta_p);
+								pT.push_back(daughter->Pt());
+								px.push_back(daughter->Px());
+								py.push_back(daughter->Py());
+								pz.push_back(daughter->Pz());
+								e.push_back(daughter->Energy());
+								mother_id.push_back(light_d_mesons[i]);
+								
+								
 								has_muon = true;
-								muon_eta.push_back(daughter->Eta());
+								//muon_eta.push_back(daughter->Eta());
+								//muon_pt.push_back(daughter->Pt());
 								//cout << "Muon seen!" << '\n';
 								continue;
 							}
 						} 
 					}
-						
-
-					//cout << part->GetLastDaughter() << '\n';
-
-	
-
-					if(not has_muon){
-						continue;
-					}
-					*/
-
-					/*
-					if(part->GetMother(1) < np && part->GetMother(1) >= 0) {
-						TParticle* mother1 = (TParticle*) particles->At(part->GetMother(1));
-						cout << "mother1 " << mother1->GetPdgCode() << '\n';
-					}
-					if(part->GetMother(2) < np && part->GetMother(2) >= 0){
-						TParticle* mother2 = (TParticle*) particles->At(part->GetMother(2));
-						cout << "mother2 " << mother2->GetPdgCode() << '\n';
-					}*/
-					
-					//does the muon have some ancestor that matches our list of D mesons?
-
-					/*
-					if(mother_idx1 >= 0){
-						TParticle* mother1 = (TParticle*) particles->At(mother_idx1);
-						int id1 = mother1->GetPdgCode();
-						if(id1 == 13 || id1 == -13){
-							cout << "mother 1 id = " << id1 << '\n';
-						}
-						for(int meson_idx = 0; meson_idx < light_d_mesons_length; meson_idx++){
-							if(id1 == light_d_mesons[meson_idx]){
-								cout << "Heavy mother\n";
-							}
-						}
-					}
-
-					if(mother_idx2 >= 0){
-						TParticle* mother2 = (TParticle*) particles->At(mother_idx2);
-						int id2 = mother2->GetPdgCode();
-
-						if(id2 == 13 || id2 == -13){
-							cout << "mother 2 id = " << id2;
-						}
-
-						for(int meson_idx = 0; meson_idx < light_d_mesons_length; meson_idx++){
-							if(id2 == light_d_mesons[meson_idx]){
-								cout << "Heavy mother\n";
-							}
-						}
-
-					}
-					*/
-					/*
-					if(!has_ohf_mother(part,particles,mother_ohf_idx,iterations,second_iterations)){
-						continue;
-					};
-					*/
-
-				bool mother_found = false;
-				TParticle* mother1;
-				TParticle* mother2;
-				int mother_idx1;
-				int mother_idx2;
-				TParticle* current_particle = part;
-				int current_idx = ip;
-
-				while(!mother_found){
-					bool seen = false;
-					current_particle = (TParticle*) particles->At(current_idx);
-
-					mother_idx1 = current_particle->GetMother(1);
-					mother_idx2 = current_particle->GetMother(2);
-					
-					//what to do when there are no mothers/when reaching the end of the tree
-					if(mother_idx1 < 0 && mother_idx2 < 0){
-						break;
-					}
-
-					if(mother_idx1 >= 0){
-						mother1 = (TParticle*) particles->At(mother_idx1);
-						int id1 = mother1->GetPdgCode();
-						if(id1 == 13 || id1 == -13){
-							//current_particle = (TParticle*) mother1;
-							cout << current_idx << '\n';
-							current_idx = mother_idx1;
-							cout << current_idx << " " << mother_idx1 << " " << np <<'\n';
-
-							seen = true;
-						}
-						//cout << mother_idx1 << '\n';
-						for(int mes_idx = 0; mes_idx < light_d_mesons_length; mes_idx++){
-							//cout << light_d_mesons[mes_idx] << '\n';
-							if(id1 == light_d_mesons[mes_idx]){
-								mother_found = true;
-								break;
-							}
-						}
-					}
-					if(mother_idx2 >= 0){
-						mother2 = (TParticle*) particles->At(mother_idx2);
-						int id2 = mother2->GetPdgCode();
-						if(id2 == 13 || id2 == -13){
-							//current_particle = (TParticle*) mother2;
-							cout << "second mother statement: current idx " << current_idx << " ";
-							current_idx = mother_idx2;
-							cout << current_idx << '\n';
-							if(seen) {
-								cout << "something is wrong, I can feel it\n";
-							}
-						}
-						for(int mes_idx = 0; mes_idx < light_d_mesons_length; mes_idx++){
-							if(id2 == light_d_mesons[mes_idx]){
-								mother_found = true;
-								break;
-							}
-						}
-					}
 				}
-
-				if(!mother_found) continue;
+			}
+	
 				
 
-				pT.push_back(part->Pt());
-				eta.push_back(eta_p);
-				px.push_back(part->Px());
-				py.push_back(part->Py());
-				pz.push_back(part->Pz());
-				e.push_back(part->Energy());
-				pdg_out.push_back(pdg);
-				if(part->GetMother(1) >= 0){
-					TParticle* mother = (TParticle*) particles->At(part->GetMother(1));
-					mother_id.push_back(mother->GetPdgCode());
-				}
-
-				heavy_seen = 1;
+				
+	
+				
+			/*
+			pT.push_back(part->Pt());
+			eta.push_back(eta_p);
+			px.push_back(part->Px());
+			py.push_back(part->Py());
+			pz.push_back(part->Pz());
+			e.push_back(part->Energy());
+			pdg_out.push_back(pdg);
+			if(part->GetMother(1) >= 0){
+				TParticle* mother = (TParticle*) particles->At(part->GetMother(1));
+				mother_id.push_back(mother->GetPdgCode());
 			}
+			*/
+			//heavy_seen = 1;
+		}
 
 /*
 			for(int i = 0; i < charm_length; i++){
@@ -343,8 +243,8 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 			}
 */
 
-		}
-		if(heavy_seen == 1){
+		
+		if(has_muon){
 			HEAVY_TREE->Fill();
 			//We have to clear our vectors, otherwise they grow without bound and the computer runs out of memory
 			pT.resize(0);

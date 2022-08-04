@@ -7,6 +7,9 @@
 #include "TCanvas.h"
 #include <math.h>
 #include "TThread.h"
+#include "TTree.h"
+#include "TFile.h"
+#include "TStyle.h"
 
 void *handle(void *ptr){
 
@@ -216,7 +219,7 @@ void *handle(void *ptr){
 }
 
 
-int main(){
+int OHFmusim_multithread(){
 
 	TThread *th[6];
 
