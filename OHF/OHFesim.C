@@ -28,15 +28,17 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 	pythia8->ReadString("Random:setSeed = on");
 
 	pythia8->ReadString("Random:seed = 42");
-	pythia8->ReadString("PhaseSpace:pTHatMin = 1");
-	pythia8->ReadString("PhaseSpace:pTHatMax = 6");
+	pythia8->ReadString("PhaseSpace:pTHatMin = 4");
+	pythia8->ReadString("PhaseSpace:pTHatMax = 16.5");
 	//pythia8->ReadString("211:mayDecay = off");
 	//pythia8->ReadString("421:mayDecay = off");
 	Double_t b_energy = 200;
+	/*
 	Float_t north_max_eta = 2.4;
 	Float_t north_min_eta = 1.2;
 	Float_t south_max_eta = -1.2;
 	Float_t south_min_eta = -2.2;
+	*/
 	pythia8->Initialize(2212,2212,b_energy);
 
 	std::vector<float> pT;
@@ -50,7 +52,7 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 	Int_t pdg1,pdg2;
 	std::vector<Int_t> mother_id;
 	std::vector<float> muon_eta;
-	std::vector<float> muon_pT;
+	std::vector<float> muon_pt;
 
 	TTree *HEAVY_TREE = new TTree("HEAVY_TREE","");
 
@@ -69,7 +71,7 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 	HEAVY_TREE->Branch("pdg_out","std::vector<Int_t>",&pdg_out);
 	HEAVY_TREE->Branch("mother_id","std::vector<Int_t>",&mother_id);
 	HEAVY_TREE->Branch("muon_eta","std::vector<float>",&muon_eta);
-	HEAVY_TREE->Branch("muon_pT","std::vector<float>",&muon_pT);
+	HEAVY_TREE->Branch("muon_pt","std::vector<float>",&muon_pt);
 
 	//an array of all of the particle ids for charmed and bottom hadrons that we care about
 	Int_t pids[] = {411,421,413,423,415,425,431,433,435,511,521,513,523,515,525,531,533,535,541,543,545};
@@ -146,7 +148,7 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 							TParticle* daughter = (TParticle*) particles->At(j);
 							int daughterid = daughter->GetPdgCode();
 							//cout << daughterid << '\n';
-							if(daughterid == 13 || daughterid == -13){
+							if(daughterid == 11 || daughterid == -11){
 								int muon_status = daughter->GetStatusCode();
 
 								if(muon_status <= 0){
@@ -160,7 +162,9 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 								//apply pseudorapidity cuts
 								float eta_p = daughter->Eta();
 
-								if((eta_p > north_max_eta || eta_p < north_min_eta) && (eta_p > south_max_eta || eta_p < south_min_eta)) continue;
+								//if((eta_p > north_max_eta || eta_p < north_min_eta) && (eta_p > south_max_eta || eta_p < south_min_eta)) continue;
+
+								if(eta_p > 0.35 || eta_p < -0.35) continue;
 
 								eta.push_back(eta_p);
 								pT.push_back(daughter->Pt());
@@ -169,8 +173,6 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 								pz.push_back(daughter->Pz());
 								e.push_back(daughter->Energy());
 								mother_id.push_back(light_b_mesons[i]);
-								muon_pT.push_back(daughter->Pt());
-								
 								
 								
 								has_muon = true;
@@ -196,7 +198,7 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 							TParticle* daughter = (TParticle*) particles->At(j);
 							int daughterid = daughter->GetPdgCode();
 							//cout << daughterid << '\n';
-							if(daughterid == 13 || daughterid == -13){
+							if(daughterid == 11 || daughterid == -11){
 								int muon_status = daughter->GetStatusCode();
 
 								if(muon_status <= 0){
@@ -208,7 +210,9 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 								//apply pseudorapidity cuts
 								float eta_p = daughter->Eta();
 
-								if((eta_p > north_max_eta || eta_p < north_min_eta) && (eta_p > south_max_eta || eta_p < south_min_eta)) continue;
+								//if((eta_p > north_max_eta || eta_p < north_min_eta) && (eta_p > south_max_eta || eta_p < south_min_eta)) continue;
+
+								if(eta_p > 0.35 || eta_p < -0.35) continue;
 
 								eta.push_back(eta_p);
 								pT.push_back(daughter->Pt());
@@ -217,7 +221,6 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 								pz.push_back(daughter->Pz());
 								e.push_back(daughter->Energy());
 								mother_id.push_back(light_d_mesons[i]);
-								muon_pT.push_back(daughter->Pt());
 								
 								
 								has_muon = true;
@@ -309,13 +312,12 @@ void sim(Int_t nev = 10000000, Int_t ndeb = 5){
 			pdg_out.resize(0);
 			mother_id.resize(0);
 			muon_eta.resize(0);
-			muon_pT.resize(0);
 		}
 
 	}
 
 
-	TFile *dir_gamma = new TFile("root_files/OHF_muons.root","CREATE");
+	TFile *dir_gamma = new TFile("root_files/OHF_electrons.root","CREATE");
 	HEAVY_TREE->Write();
 
 }
